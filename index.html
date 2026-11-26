@@ -127,7 +127,7 @@ header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:va
 .seg-block.over{box-shadow:inset 0 -4px 0 var(--st-over)}
 .steps{display:grid;gap:1px;margin-top:14px;background:var(--border);border:1px solid var(--border);
   border-radius:9px;overflow:hidden}
-.step,.step-h{display:grid;grid-template-columns:1.6fr .9fr 1fr .8fr .8fr .7fr;gap:10px;
+.step,.step-h{display:grid;grid-template-columns:1.6fr .9fr 1fr .8fr .8fr .7fr 34px;gap:10px;
   padding:9px 12px;background:var(--surface);align-items:center;font-size:13px}
 .step-h{background:var(--surface-2);font-size:11px;font-weight:600;text-transform:uppercase;
   letter-spacing:.04em;color:var(--muted)}
@@ -186,12 +186,70 @@ textarea::placeholder{color:var(--faint);font-style:italic}
 .legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
 footer{color:var(--faint);font-size:12px;padding-block:8px 28px;line-height:1.6}
 .empty{padding:34px 16px;text-align:center;color:var(--muted);font-size:14px}
+
+/* role switch + operador view */
+.role-seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--border);border-radius:11px;
+  padding:4px;margin:16px 0 0;gap:4px}
+.role-seg button{appearance:none;border:0;background:transparent;color:var(--muted);font-family:var(--font-head);
+  font-weight:600;font-size:14px;padding:9px 24px;border-radius:8px;cursor:pointer}
+.role-seg button[aria-pressed="true"]{background:var(--fg);color:var(--bg)}
+.op-intro{font-size:13px;color:var(--muted);padding-block:10px 0}
+.op-setup{display:grid;grid-template-columns:1fr 1.2fr;gap:14px;margin:16px 0}
+.op-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:15px 16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip-btn{appearance:none;border:1px solid var(--border);background:var(--surface-2);color:var(--fg);
+  font-weight:600;font-size:13px;padding:8px 15px;border-radius:999px;cursor:pointer;font-family:var(--font-body)}
+.chip-btn[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.scan-row{display:flex;gap:10px;margin-top:6px}.scan-row select{flex:1}
+.op-scanned{font-size:12.5px;color:var(--st-done);font-weight:600;margin-top:9px}
+.op-stages{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:12px;margin-bottom:28px}
+.ocard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);
+  padding:16px;display:flex;flex-direction:column;gap:11px}
+.ocard.andamento{border-color:var(--st-prog);box-shadow:0 0 0 1px var(--st-prog),var(--shadow)}
+.ocard .oname{font-weight:600;font-size:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ocard .ometa{font-size:12.5px;color:var(--muted);font-family:var(--font-mono);display:flex;flex-direction:column;gap:4px}
+.ocard .oact{display:flex;gap:8px;flex-wrap:wrap;margin-top:auto}
+.obtn{appearance:none;border:0;border-radius:10px;font-family:var(--font-body);font-weight:600;font-size:14px;
+  padding:12px 14px;cursor:pointer;flex:1;min-width:92px}
+.obtn.start{background:var(--st-done);color:#fff}.obtn.pause{background:var(--st-pause);color:#fff}
+.obtn.done{background:var(--accent);color:var(--accent-fg)}
+.obtn.ghost{background:var(--surface-2);color:var(--fg);border:1px solid var(--border);flex:0 0 auto}
+.live{font-family:var(--font-mono);color:var(--st-prog);font-weight:600}
+.op-empty{grid-column:1/-1;padding:42px 16px;text-align:center;color:var(--muted);background:var(--surface);
+  border:1px dashed var(--border);border-radius:var(--radius)}
+
+/* QR modal + exclusão/cancelamento */
+.prow-wrap{display:flex;align-items:stretch}
+.prow-wrap .prow{flex:1;min-width:0}
+.qr-btn{appearance:none;border:0;border-left:1px solid var(--border);background:var(--surface);color:var(--faint);
+  width:48px;cursor:pointer;font-size:19px;display:grid;place-items:center;flex:none}
+.qr-btn:hover{color:var(--accent);background:var(--surface-2)}
+.xstep{appearance:none;border:1px solid var(--border);background:var(--surface-2);color:var(--faint);
+  width:24px;height:24px;border-radius:6px;cursor:pointer;font-size:14px;line-height:1}
+.xstep:hover{color:var(--st-over);border-color:var(--st-over)}
+.c-del{display:flex;justify-content:flex-end}
+.step.canc .et{text-decoration:line-through;color:var(--muted)}
+.confirm-msg{font-size:13.5px;color:var(--fg);margin:6px 0 16px;line-height:1.5}
+.confirm-actions{display:flex;gap:10px;justify-content:center}
+.confirm-actions .btn{flex:1;max-width:150px}
+.modal{position:fixed;inset:0;background:rgba(12,9,6,.55);display:grid;place-items:center;z-index:50;padding:20px}
+.modal[hidden]{display:none}
+.modal-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);
+  padding:22px;max-width:320px;width:100%;text-align:center;position:relative}
+.modal-x{position:absolute;top:10px;right:10px;appearance:none;border:0;background:var(--surface-2);color:var(--fg);
+  width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:16px}
+.modal-card h3{font-size:16px}
+.qr-box{display:grid;place-items:center;padding:16px;background:#fff;border-radius:12px;margin:14px auto;width:fit-content}
+.qr-box img,.qr-box canvas{display:block}
+.qr-hint{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.45}
 @media (max-width:760px){
   .kpis{grid-template-columns:repeat(2,1fr)}
-  .step,.step-h{grid-template-columns:1.5fr .9fr .7fr .7fr;}
+  .step,.step-h{grid-template-columns:1.5fr .9fr .7fr .7fr 34px;}
   .c-op,.c-delta{display:none}
   .row2{grid-template-columns:1fr 1fr}
   .stp-grid{grid-template-columns:1fr 1fr}
+  .op-setup{grid-template-columns:1fr}
 }
 @media (max-width:460px){ .kpis{grid-template-columns:1fr 1fr} .brand p{display:none} }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
@@ -209,6 +267,11 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 28px;line-height:1.6}
 </header>
 
 <main class="wrap">
+  <div class="role-seg" role="group" aria-label="Perfil">
+    <button id="role-gestor" aria-pressed="true">Gestor</button>
+    <button id="role-operador" aria-pressed="false">Operador</button>
+  </div>
+  <div id="gestor-view">
   <div class="context-bar">
     <div class="seg" role="group" aria-label="Setor">
       <button id="ctx-ensaio" aria-pressed="true">Ensaios</button>
@@ -263,6 +326,48 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 28px;line-height:1.6}
   <div class="actions" style="margin-top:-12px">
     <button class="btn ghost" id="reset" type="button">Restaurar exemplo</button>
   </div>
+  </div><!-- /gestor-view -->
+
+  <section id="operador-view" hidden>
+    <p class="op-intro">Quiosque de ponto no tablet: o responsável lê o QR do painel, escolhe o operador e abre/fecha a sessão de cada etapa. As horas são somadas automaticamente do início ao fim.</p>
+    <div class="op-setup">
+      <div class="op-card">
+        <label>Quem está operando?</label>
+        <div id="op-who" class="chips"></div>
+      </div>
+      <div class="op-card">
+        <label for="op-painel">Painel (identificado por QR Code)</label>
+        <div class="scan-row">
+          <select id="op-painel"></select>
+          <button class="btn" id="op-scan" type="button">Ler QR</button>
+        </div>
+        <div id="op-scanned" class="op-scanned" hidden></div>
+      </div>
+    </div>
+    <div id="op-toolbar" style="margin:4px 0 12px"></div>
+    <div id="op-stages" class="op-stages"></div>
+  </section>
+
+  <div id="qr-modal" class="modal" hidden>
+    <div class="modal-card">
+      <button class="modal-x" id="qr-close" aria-label="Fechar">×</button>
+      <h3 id="qr-title">QR do painel</h3>
+      <div id="qr-box" class="qr-box"></div>
+      <p class="qr-hint" id="qr-sub"></p>
+      <button class="btn" id="qr-dl" type="button">Baixar PNG</button>
+    </div>
+  </div>
+
+  <div id="confirm-modal" class="modal" hidden>
+    <div class="modal-card">
+      <h3 id="confirm-title">Confirmar ação</h3>
+      <p class="confirm-msg" id="confirm-msg"></p>
+      <div class="confirm-actions">
+        <button class="btn ghost" id="confirm-no" type="button">Voltar</button>
+        <button class="btn" id="confirm-yes" type="button">Confirmar</button>
+      </div>
+    </div>
+  </div>
 
   <footer>
     Protótipo acadêmico — UTFPR / Oficina de Integração II. A <b>estrutura</b> (setores, etapas de ensaio e fases
@@ -271,6 +376,7 @@ footer{color:var(--faint);font-size:12px;padding-block:8px 28px;line-height:1.6}
   </footer>
 </main>
 
+<script>/*__QRLIB__*/</script>
 <script>
 "use strict";
 const STATUS={
@@ -280,7 +386,12 @@ const STATUS={
   concluida:{cls:"s-done",label:"Concluída"},
 };
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
-const h=(n,r)=>`${(+n||0).toLocaleString("pt-BR")}${r?"":" h"}`;
+const h=(n,r)=>{
+  const v=+n||0;
+  if(r)return v.toLocaleString("pt-BR",{maximumFractionDigits:1});
+  if(v>0&&v<1)return Math.round(v*60)+" min";
+  return v.toLocaleString("pt-BR",{maximumFractionDigits:1})+" h";
+};
 
 function sampleData(){return [
  {id:id(),nome:"SE Bateias — QGBT 01",tipo:"Ensaio",etapas:[
@@ -325,7 +436,7 @@ function sampleData(){return [
 ];}
 
 let seq=0; function id(){return "p"+(++seq)+Date.now().toString(36).slice(-3);}
-let state={ctx:"Ensaio",projetos:[],open:new Set()};
+let state={ctx:"Ensaio",projetos:[],open:new Set(),role:"Gestor",operador:"",postoPainel:""};
 
 function load(){
   try{const raw=localStorage.getItem("nexofab");if(raw){const d=JSON.parse(raw);
@@ -352,6 +463,12 @@ function projStatus(p){
 
 // ---- render ----
 function render(){
+  const g=state.role==="Gestor";
+  document.getElementById("gestor-view").hidden=!g;
+  document.getElementById("operador-view").hidden=g;
+  document.getElementById("role-gestor").setAttribute("aria-pressed",g);
+  document.getElementById("role-operador").setAttribute("aria-pressed",!g);
+  if(!g){renderOperador();return;}
   const list=state.projetos.filter(p=>p.tipo===state.ctx);
   renderKPIs(list); renderList(list);
   const ensaio=state.ctx==="Ensaio";
@@ -388,6 +505,7 @@ function renderList(list){
     const open=state.open.has(p.id);
     const overTxt=t.over?`<span class="over">▲ ${h(t.real)}</span>`:`<b>${h(t.real)}</b>`;
     return `<div class="proj${open?' open':''}">
+      <div class="prow-wrap">
       <button class="prow" data-id="${p.id}" aria-expanded="${open}">
         <span class="chev">▶</span>
         <span class="pmain">
@@ -402,11 +520,19 @@ function renderList(list){
           <span class="hrs">prev <b>${h(t.prev)}</b> · real ${overTxt}</span>
         </span>
       </button>
+      ${p.tipo==="Ensaio"?`<button class="qr-btn" data-qr="${p.id}" title="Gerar QR do painel" aria-label="Gerar QR do painel">▦</button>`:""}
+      </div>
       ${open?detail(p):""}
     </div>`;
   }).join("");
   el.querySelectorAll(".prow").forEach(b=>b.onclick=()=>{
     const i=b.dataset.id; state.open.has(i)?state.open.delete(i):state.open.add(i); render();
+  });
+  el.querySelectorAll(".qr-btn").forEach(b=>b.onclick=()=>openQR(b.dataset.qr));
+  el.querySelectorAll(".xstep").forEach(b=>b.onclick=()=>{
+    const p=state.projetos.find(x=>x.id===b.dataset.pid),e=p&&p.etapas[+b.dataset.idx];
+    askConfirm(`Remover a etapa "${e?e.nome:""}"? Esta ação não pode ser desfeita.`,
+      ()=>delStep(b.dataset.pid,+b.dataset.idx));
   });
 }
 function detail(p){
@@ -418,10 +544,10 @@ function detail(p){
     return `<div class="seg-block ${si.cls}${over?' over':''}" style="flex-grow:${gr}"
       title="${esc(e.nome)} — ${si.label} · prev ${h(e.prev)} · real ${h(e.real)}${e.retrabalho?' · retrabalho':''}">${esc(e.nome)}</div>`;
   }).join("");
-  const rows=p.etapas.map(e=>{
+  const rows=p.etapas.map((e,i)=>{
     const si=STATUS[e.status]||STATUS.planejada;
-    const d=(+e.real||0)-(+e.prev||0);
     const started=e.status!=="planejada";
+    const d=(+e.real||0)-(+e.prev||0);
     const dtxt=started?`<span class="delta ${d>0?'pos':'neg'}">${d>0?'+':''}${h(d)}</span>`:"—";
     return `<div class="step">
       <span class="et">${esc(e.nome)}${e.retrabalho?'<span class="flag">retrab.</span>':''}</span>
@@ -430,6 +556,7 @@ function detail(p){
       <span class="mn">${h(e.prev)}</span>
       <span class="mn">${started?h(e.real):"—"}</span>
       <span class="mn c-delta">${dtxt}</span>
+      <span class="c-del"><button class="xstep" data-pid="${p.id}" data-idx="${i}" title="Remover etapa" aria-label="Remover etapa">×</button></span>
     </div>`;
   }).join("");
   return `<div class="detail">
@@ -444,10 +571,134 @@ function detail(p){
     </div>
     <div class="steps">
       <div class="step-h"><span>Etapa</span><span>Status</span><span class="c-op">Operador</span>
-        <span>Prev.</span><span>Real.</span><span class="c-delta">Δ</span></div>
+        <span>Prev.</span><span>Real.</span><span class="c-delta">Δ</span><span class="c-del"></span></div>
       ${rows}
     </div>
   </div>`;
+}
+
+// ---- operador (quiosque de ponto) ----
+const OPERADORES=["Carlos","Marina","Rafael","João","Eduardo","Matheus"];
+const round2=x=>Math.round(x*3600)/3600;   // precisão interna de 1 segundo
+function fmtDur(ms){let s=Math.max(0,Math.floor(ms/1000));const hh=Math.floor(s/3600);s%=3600;
+  const mm=Math.floor(s/60),ss=s%60;const p=n=>String(n).padStart(2,"0");
+  return (hh?hh+":":"")+p(mm)+":"+p(ss);}
+function renderOperador(){
+  const who=document.getElementById("op-who");
+  who.innerHTML=OPERADORES.map(o=>`<button class="chip-btn" data-op="${esc(o)}" aria-pressed="${state.operador===o}">${esc(o)}</button>`).join("");
+  who.querySelectorAll(".chip-btn").forEach(b=>b.onclick=()=>{state.operador=b.dataset.op;renderOperador();});
+  const sel=document.getElementById("op-painel");
+  const paineis=state.projetos.filter(p=>p.tipo==="Ensaio");
+  sel.innerHTML=`<option value="">— selecione —</option>`+paineis.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join("");
+  sel.value=state.postoPainel||"";
+  const sc=document.getElementById("op-scanned");
+  const cur=state.projetos.find(p=>p.id===state.postoPainel);
+  if(cur){sc.hidden=false;sc.style.color="";sc.textContent="QR lido: "+cur.nome;}else sc.hidden=true;
+  renderOpStages();
+}
+function renderOpStages(){
+  const box=document.getElementById("op-stages");
+  const tb=document.getElementById("op-toolbar");
+  const p=state.projetos.find(x=>x.id===state.postoPainel);
+  if(!p){tb.innerHTML="";box.innerHTML=`<div class="op-empty">Leia o QR de um painel para abrir o apontamento das etapas.</div>`;return;}
+  tb.innerHTML=`<button class="btn ghost" id="op-retrab" type="button">+ Registrar retrabalho</button>`;
+  tb.querySelector("#op-retrab").onclick=opRetrab;
+  box.innerHTML=p.etapas.map((e,i)=>{
+    const si=STATUS[e.status]||STATUS.planejada;
+    const andando=e.status==="andamento";
+    const running=andando&&e._start;
+    return `<div class="ocard ${andando?'andamento':''}">
+      <div class="oname">${esc(e.nome)}${e.retrabalho?'<span class="flag">retrab.</span>':''}</div>
+      <div><span class="chip ${si.cls}">${si.label}</span></div>
+      <div class="ometa">
+        <span>Prev.: ${e.prev?h(e.prev):'—'} · Apontado: ${e.real?h(e.real):'0 min'}</span>
+        <span>Operador: ${esc(e.op||'—')}</span>
+        ${running?`<span>Em sessão: <span class="live" data-start="${e._start}">00:00</span></span>`:''}
+      </div>
+      <div class="oact">${opButtons(p.id,i,e.status,running)}</div>
+    </div>`;
+  }).join("");
+  box.querySelectorAll("[data-act]").forEach(b=>b.onclick=()=>{
+    const act=b.dataset.act,pid=b.dataset.pid,idx=+b.dataset.idx;
+    if(act==="cancelar-sessao")
+      askConfirm("Cancelar a sessão em andamento? As horas desta sessão não serão contabilizadas.",
+        ()=>opAction(pid,idx,act));
+    else opAction(pid,idx,act);
+  });
+}
+function opButtons(pid,i,st,running){
+  const B=(act,cls,txt)=>`<button class="obtn ${cls}" data-act="${act}" data-pid="${pid}" data-idx="${i}">${txt}</button>`;
+  if(st==="concluida")return B("reabrir","ghost","Reabrir");
+  let b;
+  if(st==="andamento")b=B("pausar","pause","⏸ Pausar")+B("concluir","done","✓ Concluir");
+  else if(st==="pausada")b=B("retomar","start","▶ Retomar")+B("concluir","done","✓ Concluir");
+  else b=B("iniciar","start","▶ Iniciar");
+  if(running)b+=B("cancelar-sessao","ghost","✕ Cancelar sessão");
+  return b;
+}
+function needOp(){
+  if(state.operador)return true;
+  const sc=document.getElementById("op-scanned");
+  sc.hidden=false;sc.style.color="var(--st-over)";
+  sc.textContent="Selecione quem está operando antes de iniciar.";
+  return false;
+}
+function opAction(pid,idx,act){
+  const p=state.projetos.find(x=>x.id===pid);if(!p)return;
+  const e=p.etapas[idx];const now=Date.now();
+  if((act==="iniciar"||act==="reabrir"||act==="retomar")&&!needOp())return;
+  if(act==="iniciar"||act==="reabrir"||act==="retomar"){e.status="andamento";e._start=now;e.op=state.operador;}
+  else if(act==="pausar"){if(e._start){e.real=round2((+e.real||0)+(now-e._start)/36e5);e._start=null;}e.status="pausada";}
+  else if(act==="concluir"){if(e._start){e.real=round2((+e.real||0)+(now-e._start)/36e5);e._start=null;}e.status="concluida";}
+  else if(act==="cancelar-sessao"){e._start=null;e.status=(+e.real>0)?"pausada":"planejada";}  // descarta a sessão, sem contabilizar
+  save();renderOperador();
+}
+function opRetrab(){
+  const p=state.projetos.find(x=>x.id===state.postoPainel);if(!p)return;
+  if(!needOp())return;
+  const n=p.etapas.filter(x=>x.retrabalho).length+1;
+  p.etapas.push({nome:"Retrabalho "+n,prev:0,real:0,op:state.operador,status:"andamento",retrabalho:true,_start:Date.now()});
+  save();renderOperador();
+}
+
+// ---- confirmação (modal, pois confirm() nativo é bloqueado em artefato) ----
+let pendingConfirm=null;
+function askConfirm(msg,onYes){
+  document.getElementById("confirm-msg").textContent=msg;
+  pendingConfirm=onYes;
+  document.getElementById("confirm-modal").hidden=false;
+}
+function closeConfirm(){document.getElementById("confirm-modal").hidden=true;pendingConfirm=null;}
+
+// ---- QR do painel + exclusão de etapa (gestor) ----
+let qrCurrent="";
+function openQR(pid){
+  const p=state.projetos.find(x=>x.id===pid);if(!p)return;
+  qrCurrent=p.nome;
+  document.getElementById("qr-title").textContent=p.nome;
+  document.getElementById("qr-sub").textContent="Imprima e cole no painel. A leitura abre o apontamento deste painel no quiosque.";
+  const box=document.getElementById("qr-box");
+  try{
+    const qr=qrcode(0,"M");qr.addData(p.nome);qr.make();
+    box.innerHTML=qr.createImgTag(6,4);
+  }catch(err){box.innerHTML='<span style="font-size:13px;color:#555">Não foi possível gerar o QR.</span>';}
+  document.getElementById("qr-modal").hidden=false;
+}
+function closeQR(){document.getElementById("qr-modal").hidden=true;}
+function dlQR(){
+  if(!qrCurrent)return;
+  const qr=qrcode(0,"M");qr.addData(qrCurrent);qr.make();
+  const n=qr.getModuleCount(),margin=4,scale=8,size=(n+margin*2)*scale;
+  const cv=document.createElement("canvas");cv.width=cv.height=size;
+  const ctx=cv.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,size,size);ctx.fillStyle="#000";
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(qr.isDark(r,c))ctx.fillRect((c+margin)*scale,(r+margin)*scale,scale,scale);
+  const a=document.createElement("a");
+  a.href=cv.toDataURL("image/png");a.download="QR_"+qrCurrent.replace(/[^\w-]+/g,"_")+".png";
+  document.body.appendChild(a);a.click();a.remove();
+}
+function delStep(pid,idx){
+  const p=state.projetos.find(x=>x.id===pid);if(!p)return;
+  p.etapas.splice(idx,1);save();render();
 }
 
 // ---- manual add ----
@@ -619,5 +870,23 @@ document.getElementById("m-addstep").onclick=()=>document.getElementById("m-step
 document.getElementById("m-save").onclick=saveManual;
 document.getElementById("t-save").onclick=saveText;
 document.getElementById("reset").onclick=()=>{state.projetos=sampleData();state.open.clear();save();render();fillAlvo();seedSteps();};
+document.getElementById("role-gestor").onclick=()=>{state.role="Gestor";render();};
+document.getElementById("role-operador").onclick=()=>{state.role="Operador";render();};
+document.getElementById("op-painel").onchange=e=>{state.postoPainel=e.target.value;renderOperador();};
+document.getElementById("op-scan").onclick=()=>{
+  const sel=document.getElementById("op-painel");
+  if(!sel.value){const f=state.projetos.find(p=>p.tipo==="Ensaio");if(f)sel.value=f.id;}
+  state.postoPainel=sel.value;renderOperador();
+};
+document.getElementById("qr-close").onclick=closeQR;
+document.getElementById("qr-dl").onclick=dlQR;
+document.getElementById("qr-modal").onclick=e=>{if(e.target.id==="qr-modal")closeQR();};
+document.getElementById("confirm-no").onclick=closeConfirm;
+document.getElementById("confirm-yes").onclick=()=>{const f=pendingConfirm;closeConfirm();if(f)f();};
+document.getElementById("confirm-modal").onclick=e=>{if(e.target.id==="confirm-modal")closeConfirm();};
+document.addEventListener("keydown",e=>{if(e.key==="Escape"){closeQR();closeConfirm();}});
+setInterval(()=>{if(state.role!=="Operador")return;
+  document.querySelectorAll("#op-stages .live").forEach(el=>{el.textContent=fmtDur(Date.now()-(+el.dataset.start));});
+},1000);
 initTheme();renderAddLabels();fillAlvo();seedSteps();syncSeg();render();
 </script>
