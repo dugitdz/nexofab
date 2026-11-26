@@ -1,0 +1,623 @@
+<title>Painel NexoFab</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: sticky header + KPI row + lista de projetos com timeline expansível + painel de adição.
+   Tema claro industrial (neutros quentes + acento âmbar), com dark mode. */
+:root{
+  --bg:#f4f2ef; --surface:#ffffff; --surface-2:#faf8f5; --border:#e5e1da;
+  --fg:#1b1917; --muted:#6c655d; --faint:#938b81;
+  --accent:#d9730d; --accent-fg:#ffffff; --accent-soft:#fbecd9;
+  --st-plan:#9b938a; --st-prog:#2563eb; --st-pause:#7c3aed;
+  --st-done:#15803d; --st-over:#dc2626;
+  --st-prog-soft:#e4ecfd; --st-done-soft:#e1f2e6; --st-pause-soft:#efe8fd;
+  --st-over-soft:#fbe4e4; --st-plan-soft:#edeae5;
+  --shadow:0 1px 2px rgba(20,16,10,.06),0 8px 24px rgba(20,16,10,.05);
+  --radius:12px;
+  --font-head:"Space Grotesk",system-ui,sans-serif;
+  --font-body:"Inter",system-ui,sans-serif;
+  --font-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#141317; --surface:#1e1d23; --surface-2:#25242b; --border:#33313b;
+  --fg:#ececee; --muted:#a09aa6; --faint:#7d7786;
+  --accent:#f59e42; --accent-fg:#1b1510; --accent-soft:#3a2a16;
+  --st-plan:#8d8894; --st-prog:#60a5fa; --st-pause:#a78bfa;
+  --st-done:#4ade80; --st-over:#f87171;
+  --st-prog-soft:#1b2740; --st-done-soft:#15301f; --st-pause-soft:#271b3d;
+  --st-over-soft:#3a1d1d; --st-plan-soft:#2a2831;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#141317; --surface:#1e1d23; --surface-2:#25242b; --border:#33313b;
+  --fg:#ececee; --muted:#a09aa6; --faint:#7d7786;
+  --accent:#f59e42; --accent-fg:#1b1510; --accent-soft:#3a2a16;
+  --st-plan:#8d8894; --st-prog:#60a5fa; --st-pause:#a78bfa;
+  --st-done:#4ade80; --st-over:#f87171;
+  --st-prog-soft:#1b2740; --st-done-soft:#15301f; --st-pause-soft:#271b3d;
+  --st-over-soft:#3a1d1d; --st-plan-soft:#2a2831;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 28px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);line-height:1.5;
+  -webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);
+  background:var(--surface);z-index:30}
+h1,h2,h3{font-family:var(--font-head);margin:0;text-wrap:balance}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.wrap{max-width:1080px;margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header */
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);
+  border-bottom:1px solid var(--border)}
+.head-in{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding-block:12px}
+.brand{display:flex;align-items:center;gap:10px;margin-right:auto}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--accent);color:var(--accent-fg);
+  display:grid;place-items:center;font-family:var(--font-head);font-weight:700;font-size:18px;flex:none}
+.brand h1{font-size:18px;letter-spacing:-.01em}
+.brand p{margin:0;font-size:12px;color:var(--muted)}
+.badge-demo{font-size:11px;font-weight:600;color:var(--accent);background:var(--accent-soft);
+  border:1px solid var(--accent);border-radius:999px;padding:3px 9px;letter-spacing:.02em}
+.icon-btn{appearance:none;border:1px solid var(--border);background:var(--surface-2);color:var(--fg);
+  width:36px;height:36px;border-radius:9px;cursor:pointer;font-size:15px;display:grid;place-items:center}
+.icon-btn:hover{border-color:var(--accent)}
+
+/* segmented control */
+.seg{display:inline-flex;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:3px}
+.seg button{appearance:none;border:0;background:transparent;color:var(--muted);font-family:var(--font-body);
+  font-weight:600;font-size:13px;padding:7px 16px;border-radius:7px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-fg)}
+.context-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:16px 4px}
+.context-bar .sub{font-size:13px;color:var(--muted);min-width:0}
+
+/* KPI tiles */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding-block:16px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 15px;
+  box-shadow:var(--shadow);display:flex;flex-direction:column;gap:3px;min-width:0}
+.kpi .lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+.kpi .val{font-family:var(--font-mono);font-weight:600;font-size:24px;letter-spacing:-.01em;line-height:1.1}
+.kpi .note{font-size:12px;color:var(--faint)}
+.kpi.alert .val{color:var(--st-over)}
+.kpi .up{color:var(--st-over)} .kpi .ok{color:var(--st-done)}
+
+/* project list */
+.list{display:flex;flex-direction:column;gap:10px;padding-bottom:8px}
+.proj{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden}
+.prow{display:grid;grid-template-columns:18px 1fr auto;gap:12px;align-items:center;
+  padding:14px 16px;cursor:pointer;width:100%;text-align:left;background:none;border:0;color:inherit;
+  font-family:var(--font-body)}
+.prow:hover{background:var(--surface-2)}
+.chev{color:var(--faint);transition:transform .15s;font-size:13px}
+.proj.open .chev{transform:rotate(90deg)}
+.pmain{min-width:0;display:flex;flex-direction:column;gap:6px}
+.pname{font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  padding:2px 7px;border-radius:5px;background:var(--surface-2);border:1px solid var(--border);color:var(--muted)}
+.pbar-wrap{display:flex;align-items:center;gap:10px}
+.pbar{flex:1;height:7px;background:var(--surface-2);border-radius:99px;overflow:hidden;min-width:60px;
+  border:1px solid var(--border)}
+.pbar>i{display:block;height:100%;background:var(--st-done);border-radius:99px}
+.pbar-txt{font-family:var(--font-mono);font-size:12px;color:var(--muted);white-space:nowrap}
+.pright{display:flex;flex-direction:column;align-items:flex-end;gap:7px}
+.pill{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px;white-space:nowrap;
+  display:inline-flex;align-items:center;gap:5px}
+.pill::before{content:"";width:7px;height:7px;border-radius:99px;background:currentColor}
+.pill.s-plan{color:var(--st-plan);background:var(--st-plan-soft)}
+.pill.s-prog{color:var(--st-prog);background:var(--st-prog-soft)}
+.pill.s-pause{color:var(--st-pause);background:var(--st-pause-soft)}
+.pill.s-done{color:var(--st-done);background:var(--st-done-soft)}
+.hrs{font-family:var(--font-mono);font-size:12.5px;color:var(--muted);white-space:nowrap}
+.hrs b{color:var(--fg);font-weight:600}
+.hrs .over{color:var(--st-over);font-weight:600}
+
+/* expanded detail */
+.detail{padding:4px 16px 18px;border-top:1px solid var(--border);background:var(--surface-2)}
+.tl-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);
+  margin:14px 0 7px}
+.timeline{display:flex;gap:2px;height:30px;border-radius:7px;overflow:hidden;min-width:420px}
+.tl-scroll{overflow-x:auto}
+.seg-block{position:relative;min-width:34px;display:grid;place-items:center;color:#fff;font-size:10.5px;
+  font-weight:600;overflow:hidden;white-space:nowrap;padding:0 6px}
+.seg-block.s-plan{background:var(--st-plan)} .seg-block.s-prog{background:var(--st-prog)}
+.seg-block.s-pause{background:var(--st-pause)} .seg-block.s-done{background:var(--st-done)}
+.seg-block.over{box-shadow:inset 0 -4px 0 var(--st-over)}
+.steps{display:grid;gap:1px;margin-top:14px;background:var(--border);border:1px solid var(--border);
+  border-radius:9px;overflow:hidden}
+.step,.step-h{display:grid;grid-template-columns:1.6fr .9fr 1fr .8fr .8fr .7fr;gap:10px;
+  padding:9px 12px;background:var(--surface);align-items:center;font-size:13px}
+.step-h{background:var(--surface-2);font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.04em;color:var(--muted)}
+.step .et{font-weight:500;min-width:0}
+.step .flag{display:inline-block;font-size:10px;font-weight:700;color:var(--st-over);
+  background:var(--st-over-soft);border-radius:4px;padding:1px 6px;margin-left:6px;letter-spacing:.03em}
+.step .mn{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.step .op{color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis}
+.chip{font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;white-space:nowrap}
+.chip.s-plan{color:var(--st-plan);background:var(--st-plan-soft)}
+.chip.s-prog{color:var(--st-prog);background:var(--st-prog-soft)}
+.chip.s-pause{color:var(--st-pause);background:var(--st-pause-soft)}
+.chip.s-done{color:var(--st-done);background:var(--st-done-soft)}
+.delta.pos{color:var(--st-over);font-weight:600} .delta.neg{color:var(--st-done)}
+
+/* add panel */
+.add{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);margin:18px 0 28px;overflow:hidden}
+.add-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border);
+  flex-wrap:wrap}
+.add-head h2{font-size:15px}
+.tabs{display:inline-flex;gap:4px;margin-left:auto;background:var(--surface-2);border:1px solid var(--border);
+  border-radius:9px;padding:3px}
+.tabs button{appearance:none;border:0;background:transparent;color:var(--muted);font-weight:600;font-size:12.5px;
+  padding:6px 13px;border-radius:6px;cursor:pointer;font-family:var(--font-body)}
+.tabs button[aria-pressed="true"]{background:var(--surface);color:var(--fg);box-shadow:var(--shadow)}
+.add-body{padding:16px}
+label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px}
+input,select,textarea{font-family:var(--font-body);font-size:13.5px;color:var(--fg);background:var(--surface-2);
+  border:1px solid var(--border);border-radius:8px;padding:9px 11px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:1px}
+textarea{resize:vertical;min-height:132px;font-family:var(--font-mono);line-height:1.55;font-size:12.5px}
+textarea::placeholder{color:var(--faint);font-style:italic}
+.field{margin-bottom:12px}
+.row2{display:grid;grid-template-columns:1fr 160px;gap:12px}
+.stp-grid{display:grid;grid-template-columns:1.4fr 62px 1fr 1fr auto auto;gap:8px;align-items:center;margin-bottom:8px}
+.stp-grid input,.stp-grid select{padding:7px 9px;font-size:12.5px}
+.rt{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;color:var(--muted);white-space:nowrap;margin:0;cursor:pointer}
+.rt input{width:auto;accent-color:var(--st-over)}
+.mini{appearance:none;border:1px solid var(--border);background:var(--surface-2);color:var(--muted);
+  border-radius:7px;width:34px;height:34px;cursor:pointer;font-size:16px;flex:none}
+.mini:hover{color:var(--st-over);border-color:var(--st-over)}
+.btn{appearance:none;border:0;background:var(--accent);color:var(--accent-fg);font-family:var(--font-body);
+  font-weight:600;font-size:13.5px;padding:10px 18px;border-radius:9px;cursor:pointer}
+.btn:hover{filter:brightness(1.05)}
+.btn.ghost{background:var(--surface-2);color:var(--fg);border:1px solid var(--border)}
+.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.hint{font-size:12px;color:var(--faint);margin-top:8px;line-height:1.5}
+.hint code{font-family:var(--font-mono);background:var(--surface-2);border:1px solid var(--border);
+  border-radius:4px;padding:1px 5px;font-size:11.5px;color:var(--muted)}
+.msg{font-size:12.5px;font-weight:600;padding:8px 11px;border-radius:8px;margin-top:10px}
+.msg.ok{color:var(--st-done);background:var(--st-done-soft)}
+.msg.err{color:var(--st-over);background:var(--st-over-soft)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:11px;height:11px;border-radius:3px;display:inline-block}
+footer{color:var(--faint);font-size:12px;padding-block:8px 28px;line-height:1.6}
+.empty{padding:34px 16px;text-align:center;color:var(--muted);font-size:14px}
+@media (max-width:760px){
+  .kpis{grid-template-columns:repeat(2,1fr)}
+  .step,.step-h{grid-template-columns:1.5fr .9fr .7fr .7fr;}
+  .c-op,.c-delta{display:none}
+  .row2{grid-template-columns:1fr 1fr}
+  .stp-grid{grid-template-columns:1fr 1fr}
+}
+@media (max-width:460px){ .kpis{grid-template-columns:1fr 1fr} .brand p{display:none} }
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header>
+  <div class="wrap head-in">
+    <div class="brand">
+      <div class="logo">N</div>
+      <div><h1>NexoFab</h1><p>Painel do Gestor · DMA</p></div>
+    </div>
+    <span class="badge-demo">Dados ilustrativos</span>
+    <button class="icon-btn" id="theme" title="Alternar tema" aria-label="Alternar tema">◐</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="context-bar">
+    <div class="seg" role="group" aria-label="Setor">
+      <button id="ctx-ensaio" aria-pressed="true">Ensaios</button>
+      <button id="ctx-projeto" aria-pressed="false">Projetos</button>
+    </div>
+    <span class="sub" id="ctx-sub"></span>
+  </div>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="list" id="list"></section>
+
+  <section class="add">
+    <div class="add-head">
+      <h2 id="add-title">Adicionar painel / ensaio</h2>
+      <div class="tabs" role="group" aria-label="Modo de entrada">
+        <button id="tab-manual" aria-pressed="true">Manual</button>
+        <button id="tab-texto" aria-pressed="false">Por texto padronizado</button>
+      </div>
+    </div>
+    <div class="add-body">
+      <!-- manual -->
+      <div id="pane-manual">
+        <div class="field">
+          <label for="m-alvo" id="m-alvo-lbl">Painel / ensaio (ou criar novo)</label>
+          <select id="m-alvo"></select>
+        </div>
+        <div class="field" id="m-newwrap" hidden>
+          <label for="m-nome" id="m-nome-lbl">Nome do novo painel</label>
+          <input id="m-nome" placeholder="SE Bateias — QGBT 05">
+        </div>
+        <label>Etapas (nome · horas previstas · operador · status · retrabalho)</label>
+        <div id="m-steps"></div>
+        <div class="actions">
+          <button class="btn ghost" id="m-addstep" type="button">+ etapa</button>
+          <button class="btn" id="m-save" type="button">Adicionar projeto</button>
+        </div>
+        <div id="m-msg"></div>
+      </div>
+      <!-- texto -->
+      <div id="pane-texto" hidden>
+        <label for="t-area">Cole a descrição no formato padronizado</label>
+        <textarea id="t-area" spellcheck="false"></textarea>
+        <div class="hint">Uma linha <code>Projeto:</code> seguida de linhas <code>Etapa:</code>. Campos separados por <code>|</code>.
+          Chaves aceitas por etapa: <code>horas:</code> <code>real:</code> <code>operador:</code> <code>status:</code> (concluída / andamento / pausada / planejada) e a marca <code>retrabalho</code>.</div>
+        <div class="actions"><button class="btn" id="t-save" type="button">Processar e adicionar</button></div>
+        <div id="t-msg"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="actions" style="margin-top:-12px">
+    <button class="btn ghost" id="reset" type="button">Restaurar exemplo</button>
+  </div>
+
+  <footer>
+    Protótipo acadêmico — UTFPR / Oficina de Integração II. A <b>estrutura</b> (setores, etapas de ensaio e fases
+    de projeto: Workstatement, Elaboração, Asbuilt TAF e TAC) reflete as respostas da DMA; os <b>valores</b> são
+    de exemplo. Dados reais viriam do piloto e da previsão de horas que a DMA já possui.
+  </footer>
+</main>
+
+<script>
+"use strict";
+const STATUS={
+  planejada:{cls:"s-plan",label:"Planejada"},
+  andamento:{cls:"s-prog",label:"Em andamento"},
+  pausada:{cls:"s-pause",label:"Pausada"},
+  concluida:{cls:"s-done",label:"Concluída"},
+};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+const h=(n,r)=>`${(+n||0).toLocaleString("pt-BR")}${r?"":" h"}`;
+
+function sampleData(){return [
+ {id:id(),nome:"SE Bateias — QGBT 01",tipo:"Ensaio",etapas:[
+   {nome:"Inspeção visual",prev:2,real:2,op:"Carlos",status:"concluida"},
+   {nome:"Ensaio dielétrico",prev:8,real:9,op:"Marina",status:"concluida"},
+   {nome:"Ensaio funcional",prev:12,real:7,op:"Marina",status:"andamento"},
+   {nome:"Ajuste de fiação",prev:0,real:3,op:"Carlos",status:"andamento",retrabalho:true},
+ ]},
+ {id:id(),nome:"SE Bateias — CCM 02",tipo:"Ensaio",etapas:[
+   {nome:"Inspeção visual",prev:2,real:2,op:"Rafael",status:"concluida"},
+   {nome:"Ensaio dielétrico",prev:8,real:8,op:"Rafael",status:"concluida"},
+   {nome:"Ensaio funcional",prev:10,real:10,op:"Marina",status:"concluida"},
+ ]},
+ {id:id(),nome:"SE Pilarzinho — Quadro Dist. 04",tipo:"Ensaio",etapas:[
+   {nome:"Inspeção visual",prev:2,real:2,op:"Carlos",status:"concluida"},
+   {nome:"Ensaio dielétrico",prev:8,real:5,op:"Carlos",status:"pausada"},
+   {nome:"Ensaio funcional",prev:12,real:0,op:"—",status:"planejada"},
+ ]},
+ {id:id(),nome:"SE Pilarzinho — QGBT 03",tipo:"Ensaio",etapas:[
+   {nome:"Inspeção visual",prev:2,real:0,op:"—",status:"planejada"},
+   {nome:"Ensaio dielétrico",prev:8,real:0,op:"—",status:"planejada"},
+   {nome:"Ensaio funcional",prev:12,real:0,op:"—",status:"planejada"},
+ ]},
+ {id:id(),nome:"SE Curitiba Norte 230 kV",tipo:"Projeto",etapas:[
+   {nome:"Workstatement",prev:40,real:38,op:"João",status:"concluida"},
+   {nome:"Elaboração",prev:180,real:150,op:"Eduardo",status:"andamento"},
+   {nome:"Asbuilt TAF",prev:60,real:0,op:"—",status:"planejada"},
+   {nome:"Asbuilt TAC",prev:40,real:0,op:"—",status:"planejada"},
+ ]},
+ {id:id(),nome:"LT 230 kV Bateias–Pilarzinho",tipo:"Projeto",etapas:[
+   {nome:"Workstatement",prev:30,real:30,op:"João",status:"concluida"},
+   {nome:"Elaboração",prev:160,real:175,op:"Matheus",status:"andamento"},
+   {nome:"Asbuilt TAF",prev:50,real:0,op:"—",status:"planejada"},
+   {nome:"Asbuilt TAC",prev:40,real:0,op:"—",status:"planejada"},
+ ]},
+ {id:id(),nome:"SE Araucária — Ampliação",tipo:"Projeto",etapas:[
+   {nome:"Workstatement",prev:35,real:35,op:"João",status:"concluida"},
+   {nome:"Elaboração",prev:150,real:150,op:"Eduardo",status:"concluida"},
+   {nome:"Asbuilt TAF",prev:55,real:48,op:"Matheus",status:"andamento"},
+   {nome:"Asbuilt TAC",prev:40,real:0,op:"—",status:"planejada"},
+ ]},
+];}
+
+let seq=0; function id(){return "p"+(++seq)+Date.now().toString(36).slice(-3);}
+let state={ctx:"Ensaio",projetos:[],open:new Set()};
+
+function load(){
+  try{const raw=localStorage.getItem("nexofab");if(raw){const d=JSON.parse(raw);
+    if(Array.isArray(d)&&d.length){state.projetos=d;return;}}}catch(e){}
+  state.projetos=sampleData();
+}
+function save(){try{localStorage.setItem("nexofab",JSON.stringify(state.projetos));}catch(e){}}
+
+// ---- derive ----
+function totals(p){
+  let prev=0,real=0,done=0,retr=0,started=false;
+  p.etapas.forEach(e=>{prev+=+e.prev||0;real+=+e.real||0;
+    if(e.status==="concluida")done++; if(e.retrabalho)retr+=+e.real||0;
+    if(e.status!=="planejada")started=true;});
+  return {prev,real,done,total:p.etapas.length,retr,started,over:real>prev&&started};
+}
+function projStatus(p){
+  const st=p.etapas.map(e=>e.status);
+  if(st.length&&st.every(s=>s==="concluida"))return "concluida";
+  if(st.some(s=>s==="andamento"))return "andamento";
+  if(st.some(s=>s==="pausada"))return "pausada";
+  return "planejada";
+}
+
+// ---- render ----
+function render(){
+  const list=state.projetos.filter(p=>p.tipo===state.ctx);
+  renderKPIs(list); renderList(list);
+  const ensaio=state.ctx==="Ensaio";
+  document.getElementById("ctx-sub").textContent=ensaio
+    ? "Setor de Qualidade · QR Code por painel · início pelo tablet"
+    : "Setor de Projetos · fases por empreendimento · controle por cronograma";
+}
+function renderKPIs(list){
+  let prev=0,real=0,done=0,tot=0,retr=0,over=0;
+  list.forEach(p=>{const t=totals(p);prev+=t.prev;real+=t.real;done+=t.done;tot+=t.total;retr+=t.retr;if(t.over)over++;});
+  const pct=tot?Math.round(done/tot*100):0;
+  const dl=prev?Math.round((real-prev)/prev*100):0;
+  const rp=real?Math.round(retr/real*100):0;
+  const unit=state.ctx==="Ensaio"?"painéis":"empreendimentos";
+  const k=[
+   {lbl:unit+" ativos",val:list.length,note:"em acompanhamento"},
+   {lbl:"Etapas concluídas",val:pct+"%",note:done+" de "+tot+" etapas"},
+   {lbl:"Horas prev. × real.",val:`<span class="mono">${h(prev,1)}</span> / <span class="mono">${h(real,1)}</span>`,
+     note:`<span class="${dl>0?'up':'ok'}">${dl>0?'+':''}${dl}% vs. previsto</span>`,raw:true},
+   {lbl:"Retrabalho",val:h(retr),note:rp+"% das horas realizadas"},
+   {lbl:"Estourando horas",val:over,note:over?"projetos acima do previsto":"tudo dentro do previsto",alert:over>0},
+  ];
+  document.getElementById("kpis").innerHTML=k.map(x=>`<div class="kpi${x.alert?' alert':''}">
+    <span class="lbl">${x.lbl}</span>
+    <span class="val">${x.raw?x.val:'<span class="mono">'+x.val+'</span>'}</span>
+    <span class="note">${x.note}</span></div>`).join("");
+}
+function renderList(list){
+  const el=document.getElementById("list");
+  if(!list.length){el.innerHTML=`<div class="proj"><div class="empty">Nenhum ${state.ctx==="Ensaio"?"painel":"empreendimento"} neste setor. Adicione um abaixo.</div></div>`;return;}
+  el.innerHTML=list.map(p=>{
+    const t=totals(p),s=projStatus(p),si=STATUS[s];
+    const pct=t.total?Math.round(t.done/t.total*100):0;
+    const open=state.open.has(p.id);
+    const overTxt=t.over?`<span class="over">▲ ${h(t.real)}</span>`:`<b>${h(t.real)}</b>`;
+    return `<div class="proj${open?' open':''}">
+      <button class="prow" data-id="${p.id}" aria-expanded="${open}">
+        <span class="chev">▶</span>
+        <span class="pmain">
+          <span class="pname">${esc(p.nome)} <span class="tag">${p.tipo}</span></span>
+          <span class="pbar-wrap">
+            <span class="pbar"><i style="width:${pct}%"></i></span>
+            <span class="pbar-txt">${pct}%</span>
+          </span>
+        </span>
+        <span class="pright">
+          <span class="pill ${si.cls}">${si.label}</span>
+          <span class="hrs">prev <b>${h(t.prev)}</b> · real ${overTxt}</span>
+        </span>
+      </button>
+      ${open?detail(p):""}
+    </div>`;
+  }).join("");
+  el.querySelectorAll(".prow").forEach(b=>b.onclick=()=>{
+    const i=b.dataset.id; state.open.has(i)?state.open.delete(i):state.open.add(i); render();
+  });
+}
+function detail(p){
+  const max=Math.max(...p.etapas.map(e=>+e.prev||0),1);
+  const tl=p.etapas.map(e=>{
+    const si=STATUS[e.status]||STATUS.planejada;
+    const gr=Math.max((+e.prev||0),max*0.12);
+    const over=(+e.real>+e.prev)&&e.status!=="planejada";
+    return `<div class="seg-block ${si.cls}${over?' over':''}" style="flex-grow:${gr}"
+      title="${esc(e.nome)} — ${si.label} · prev ${h(e.prev)} · real ${h(e.real)}${e.retrabalho?' · retrabalho':''}">${esc(e.nome)}</div>`;
+  }).join("");
+  const rows=p.etapas.map(e=>{
+    const si=STATUS[e.status]||STATUS.planejada;
+    const d=(+e.real||0)-(+e.prev||0);
+    const started=e.status!=="planejada";
+    const dtxt=started?`<span class="delta ${d>0?'pos':'neg'}">${d>0?'+':''}${h(d)}</span>`:"—";
+    return `<div class="step">
+      <span class="et">${esc(e.nome)}${e.retrabalho?'<span class="flag">retrab.</span>':''}</span>
+      <span><span class="chip ${si.cls}">${si.label}</span></span>
+      <span class="op c-op">${esc(e.op||"—")}</span>
+      <span class="mn">${h(e.prev)}</span>
+      <span class="mn">${started?h(e.real):"—"}</span>
+      <span class="mn c-delta">${dtxt}</span>
+    </div>`;
+  }).join("");
+  return `<div class="detail">
+    <div class="tl-label">Linha do tempo das etapas (largura ∝ horas previstas)</div>
+    <div class="tl-scroll"><div class="timeline">${tl}</div></div>
+    <div class="legend">
+      <span><i style="background:var(--st-plan)"></i>Planejada</span>
+      <span><i style="background:var(--st-prog)"></i>Em andamento</span>
+      <span><i style="background:var(--st-pause)"></i>Pausada</span>
+      <span><i style="background:var(--st-done)"></i>Concluída</span>
+      <span><i style="background:var(--st-over)"></i>Estouro de horas</span>
+    </div>
+    <div class="steps">
+      <div class="step-h"><span>Etapa</span><span>Status</span><span class="c-op">Operador</span>
+        <span>Prev.</span><span>Real.</span><span class="c-delta">Δ</span></div>
+      ${rows}
+    </div>
+  </div>`;
+}
+
+// ---- manual add ----
+const NOVO="__novo__";
+function stepRow(v){
+  v=v||{};
+  const d=document.createElement("div");d.className="stp-grid";
+  d.innerHTML=`<input class="s-nome" placeholder="Etapa" value="${esc(v.nome||'')}">
+    <input class="s-prev" type="number" min="0" placeholder="h prev." value="${v.prev??''}">
+    <input class="s-op" placeholder="Operador" value="${esc(v.op||'')}">
+    <select class="s-st">
+      <option value="planejada">Planejada</option><option value="andamento">Em andamento</option>
+      <option value="pausada">Pausada</option><option value="concluida">Concluída</option></select>
+    <label class="rt"><input type="checkbox" class="s-rt"> retrab.</label>
+    <button class="mini" type="button" title="Remover etapa">×</button>`;
+  d.querySelector(".s-st").value=v.status||"planejada";
+  if(v.retrabalho)d.querySelector(".s-rt").checked=true;
+  d.querySelector(".mini").onclick=()=>d.remove();
+  return d;
+}
+function defaultSteps(){
+  return state.ctx==="Ensaio"
+    ? [{nome:"Inspeção visual",prev:2},{nome:"Ensaio dielétrico",prev:8},{nome:"Ensaio funcional",prev:12}]
+    : [{nome:"Workstatement",prev:40},{nome:"Elaboração",prev:160},{nome:"Asbuilt TAF",prev:55},{nome:"Asbuilt TAC",prev:40}];
+}
+function seedSteps(){
+  const c=document.getElementById("m-steps");c.innerHTML="";
+  const novo=document.getElementById("m-alvo").value===NOVO;
+  (novo?defaultSteps():[{}]).forEach(r=>c.appendChild(stepRow(r)));
+}
+function fillAlvo(keep){
+  const sel=document.getElementById("m-alvo");
+  const items=state.projetos.filter(p=>p.tipo===state.ctx);
+  const noun=state.ctx==="Ensaio"?"painel":"projeto";
+  sel.innerHTML=`<option value="${NOVO}">➕ Criar novo ${noun}…</option>`+
+    items.map(p=>`<option value="${p.id}">${esc(p.nome)}</option>`).join("");
+  sel.value=(keep&&[...sel.options].some(o=>o.value===keep))?keep:NOVO;
+  toggleNew();
+}
+function toggleNew(){
+  const novo=document.getElementById("m-alvo").value===NOVO;
+  document.getElementById("m-newwrap").hidden=!novo;
+  const en=state.ctx==="Ensaio";
+  document.getElementById("m-save").textContent=novo?(en?"Criar painel":"Criar projeto"):"Adicionar etapa(s)";
+}
+function renderAddLabels(){
+  const en=state.ctx==="Ensaio";
+  document.getElementById("add-title").textContent=en?"Adicionar painel / ensaio":"Adicionar projeto";
+  document.getElementById("m-alvo-lbl").textContent=en?"Painel / ensaio (ou criar novo)":"Projeto (ou criar novo)";
+  document.getElementById("m-nome-lbl").textContent=en?"Nome do novo painel":"Nome do novo projeto";
+  document.getElementById("m-nome").placeholder=en?"SE Bateias — QGBT 05":"SE Nova — 230 kV";
+}
+function flash(el,cls,t){el.className="msg "+cls;el.textContent=t;if(cls==="ok")setTimeout(()=>{el.textContent="";el.className="";},4500);}
+function saveManual(){
+  const msg=document.getElementById("m-msg");
+  const alvo=document.getElementById("m-alvo").value;
+  const etapas=[...document.querySelectorAll("#m-steps .stp-grid")].map(r=>({
+    nome:r.querySelector(".s-nome").value.trim(),
+    prev:+r.querySelector(".s-prev").value||0,real:0,
+    op:r.querySelector(".s-op").value.trim()||"—",
+    status:r.querySelector(".s-st").value,
+    retrabalho:r.querySelector(".s-rt").checked,
+  })).filter(e=>e.nome);
+  if(!etapas.length){flash(msg,"err","Adicione ao menos uma etapa (com nome).");return;}
+  let target,txt;
+  if(alvo===NOVO){
+    const nome=document.getElementById("m-nome").value.trim();
+    if(!nome){flash(msg,"err","Informe o nome.");return;}
+    target={id:id(),nome,tipo:state.ctx,etapas};
+    state.projetos.push(target);
+    txt=`"${nome}" criado com ${etapas.length} etapa(s).`;
+  }else{
+    target=state.projetos.find(p=>p.id===alvo);
+    if(!target){flash(msg,"err","Destino não encontrado.");return;}
+    target.etapas.push(...etapas);
+    txt=`${etapas.length} etapa(s) adicionada(s) a "${target.nome}".`;
+  }
+  state.open.add(target.id);save();render();
+  fillAlvo(target.id);seedSteps();
+  document.getElementById("m-nome").value="";
+  flash(msg,"ok",txt);
+}
+
+// ---- text parser ----
+function parseText(txt){
+  const lines=txt.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  const projetos=[];let cur=null;
+  const normSt=v=>{v=(v||"").toLowerCase();
+    if(/conclu/.test(v))return "concluida"; if(/andam/.test(v))return "andamento";
+    if(/paus/.test(v))return "pausada"; return "planejada";};
+  for(const ln of lines){
+    const parts=ln.split("|").map(s=>s.trim());
+    const head=parts[0];
+    if(/^projeto\s*:/i.test(head)){
+      cur={id:id(),nome:head.replace(/^projeto\s*:/i,"").trim(),tipo:state.ctx,etapas:[]};
+      parts.slice(1).forEach(seg=>{const m=seg.split(/:(.+)/);
+        if(/tipo/i.test(m[0])){cur.tipo=/proj/i.test(m[1]||"")?"Projeto":"Ensaio";}});
+      if(!cur.nome){throw new Error("Linha 'Projeto:' sem nome.");}
+      projetos.push(cur);
+    }else if(/^etapa\s*:/i.test(head)){
+      if(!cur)throw new Error("Encontrei uma 'Etapa:' antes de qualquer 'Projeto:'.");
+      const e={nome:head.replace(/^etapa\s*:/i,"").trim(),prev:0,real:0,op:"—",status:"planejada",retrabalho:false};
+      parts.slice(1).forEach(seg=>{
+        if(/^retrabalho$/i.test(seg)){e.retrabalho=true;return;}
+        const m=seg.split(/:(.+)/);const k=(m[0]||"").trim().toLowerCase();const val=(m[1]||"").trim();
+        if(k==="horas"||k==="prev")e.prev=+val||0;
+        else if(k==="real")e.real=+val||0;
+        else if(k==="operador"||k==="op")e.op=val||"—";
+        else if(k==="status")e.status=normSt(val);
+        else if(/^retrabalho/i.test(k))e.retrabalho=/sim|true|1/i.test(val);
+      });
+      cur.etapas.push(e);
+    }
+  }
+  if(!projetos.length)throw new Error("Nenhuma linha 'Projeto:' encontrada.");
+  projetos.forEach(p=>{if(!p.etapas.length)throw new Error(`O projeto "${p.nome}" ficou sem etapas.`);});
+  return projetos;
+}
+function saveText(){
+  const msg=document.getElementById("t-msg");
+  try{
+    const ps=parseText(document.getElementById("t-area").value);
+    ps.forEach(p=>state.projetos.push(p));
+    state.ctx=ps[0].tipo;syncSeg();save();render();
+    renderAddLabels();fillAlvo();seedSteps();
+    document.getElementById("t-area").value="";
+    const n=ps.reduce((a,p)=>a+p.etapas.length,0);
+    msg.className="msg ok";msg.textContent=`${ps.length} projeto(s) e ${n} etapa(s) adicionados.`;
+    setTimeout(()=>msg.textContent="",4500);
+  }catch(err){msg.className="msg err";msg.textContent=err.message;}
+}
+
+// ---- wiring ----
+const PLACEHOLDER=
+`Projeto: SE Bateias — QGBT 05 | Tipo: Ensaio
+Etapa: Inspeção visual | horas: 2 | operador: Carlos | status: concluída
+Etapa: Ensaio dielétrico | horas: 8 | operador: Marina | status: andamento
+Etapa: Retrabalho - fiação | horas: 3 | operador: Carlos | retrabalho`;
+
+function syncSeg(){
+  const en=state.ctx==="Ensaio";
+  document.getElementById("ctx-ensaio").setAttribute("aria-pressed",en);
+  document.getElementById("ctx-projeto").setAttribute("aria-pressed",!en);
+}
+function setTab(manual){
+  document.getElementById("tab-manual").setAttribute("aria-pressed",manual);
+  document.getElementById("tab-texto").setAttribute("aria-pressed",!manual);
+  document.getElementById("pane-manual").hidden=!manual;
+  document.getElementById("pane-texto").hidden=manual;
+}
+function initTheme(){
+  const b=document.getElementById("theme");
+  b.onclick=()=>{const cur=document.documentElement.getAttribute("data-theme");
+    const dark=cur?cur==="dark":matchMedia("(prefers-color-scheme:dark)").matches;
+    document.documentElement.setAttribute("data-theme",dark?"light":"dark");
+    try{localStorage.setItem("nexofab-theme",dark?"light":"dark");}catch(e){}};
+  try{const t=localStorage.getItem("nexofab-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}
+}
+
+function switchCtx(c){state.ctx=c;syncSeg();render();renderAddLabels();fillAlvo();seedSteps();}
+load();
+document.getElementById("t-area").setAttribute("placeholder",PLACEHOLDER);
+document.getElementById("ctx-ensaio").onclick=()=>switchCtx("Ensaio");
+document.getElementById("ctx-projeto").onclick=()=>switchCtx("Projeto");
+document.getElementById("tab-manual").onclick=()=>setTab(true);
+document.getElementById("tab-texto").onclick=()=>setTab(false);
+document.getElementById("m-alvo").onchange=()=>{toggleNew();seedSteps();};
+document.getElementById("m-addstep").onclick=()=>document.getElementById("m-steps").appendChild(stepRow());
+document.getElementById("m-save").onclick=saveManual;
+document.getElementById("t-save").onclick=saveText;
+document.getElementById("reset").onclick=()=>{state.projetos=sampleData();state.open.clear();save();render();fillAlvo();seedSteps();};
+initTheme();renderAddLabels();fillAlvo();seedSteps();syncSeg();render();
+</script>
